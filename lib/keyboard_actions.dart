@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:keyboard_actions/external/keyboard_avoider/bottom_area_avoider.dart';
-import 'package:keyboard_actions/external/platform_check/platform_check.dart';
 
+import 'external/keyboard_avoider/bottom_area_avoider.dart';
+import 'external/platform_check/platform_check.dart';
 import 'keyboard_actions_config.dart';
 import 'keyboard_actions_item.dart';
 
@@ -52,6 +52,21 @@ enum TapOutsideBehavior {
 ///   2. content is only shrunk as needed (a problem with scaffold)
 ///   3. we shrink an additional [_kBarSize] so the keyboard action bar doesn't cover content either.
 class KeyboardActions extends StatefulWidget {
+  const KeyboardActions(
+      {this.child,
+      this.bottomAvoiderScrollPhysics,
+      this.enable = true,
+      this.autoScroll = true,
+      this.isDialog = false,
+      @Deprecated('Use tapOutsideBehavior instead.')
+          this.tapOutsideToDismiss = false,
+      this.tapOutsideBehavior = TapOutsideBehavior.none,
+      required this.config,
+      this.overscroll = 12.0,
+      this.disableScroll = false,
+      this.keepFocusOnTappingNode = false})
+      : assert(child != null);
+
   /// Any content you want to resize/scroll when the keyboard comes up
   final Widget? child;
 
@@ -86,21 +101,6 @@ class KeyboardActions extends StatefulWidget {
   /// Does not clear the focus if you tap on the node focused, useful for keeping the text cursor selection working. Usually used with tapOutsideBehavior as translucent
   final bool keepFocusOnTappingNode;
 
-  const KeyboardActions(
-      {this.child,
-      this.bottomAvoiderScrollPhysics,
-      this.enable = true,
-      this.autoScroll = true,
-      this.isDialog = false,
-      @Deprecated('Use tapOutsideBehavior instead.')
-          this.tapOutsideToDismiss = false,
-      this.tapOutsideBehavior = TapOutsideBehavior.none,
-      required this.config,
-      this.overscroll = 12.0,
-      this.disableScroll = false,
-      this.keepFocusOnTappingNode = false})
-      : assert(child != null);
-
   @override
   KeyboardActionstate createState() => KeyboardActionstate();
 }
@@ -112,7 +112,7 @@ class KeyboardActionstate extends State<KeyboardActions>
   KeyboardActionsConfig? config;
 
   /// private state
-  Map<int, KeyboardActionsItem> _map = Map();
+  Map<int, KeyboardActionsItem> _map = {};
   KeyboardActionsItem? _currentAction;
   int? _currentIndex = 0;
   OverlayEntry? _overlayEntry;
@@ -188,13 +188,14 @@ class KeyboardActionstate extends State<KeyboardActions>
   }
 
   void _clearAllFocusNode() {
-    _map = Map();
+    _map = {};
   }
 
   void _clearFocus() {
     _currentAction?.focusNode.unfocus();
   }
 
+  // ignore: prefer_void_to_null
   Future<Null> _focusNodeListener() async {
     bool hasFocusFound = false;
     _map.keys.forEach((key) {
@@ -209,7 +210,7 @@ class KeyboardActionstate extends State<KeyboardActions>
     _focusChanged(hasFocusFound);
   }
 
-  void _shouldGoToNextFocus(KeyboardActionsItem action, int? nextIndex) async {
+  Future<void> _shouldGoToNextFocus(KeyboardActionsItem action, int? nextIndex) async {
     _dismissAnimationNeeded = true;
     _currentAction = action;
     _currentIndex = nextIndex;
@@ -226,13 +227,13 @@ class KeyboardActionstate extends State<KeyboardActions>
     });
     //if it is a custom keyboard then wait until the focus was dismissed from the others
     if (_currentAction!.footerBuilder != null) {
-      await Future.delayed(
+      await Future<dynamic>.delayed(
         Duration(milliseconds: _timeToDismiss.inMilliseconds),
       );
     }
 
     FocusScope.of(context).requestFocus(_currentAction!.focusNode);
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<dynamic>.delayed(const Duration(milliseconds: 100));
     bottomAreaAvoiderKey.currentState?.scrollToOverscroll();
   }
 
@@ -263,7 +264,7 @@ class KeyboardActionstate extends State<KeyboardActions>
   /// Shows or hides the keyboard bar as needed, and re-calculates the overlay offset.
   ///
   /// Called every time the focus changes, and when the app is resumed on Android.
-  void _focusChanged(bool showBar) async {
+  Future<void> _focusChanged(bool showBar) async {
     if (_isAvailable) {
       if (_dismissAnimation != null) {
         // wait for the previous animation to complete
@@ -327,7 +328,7 @@ class KeyboardActionstate extends State<KeyboardActions>
   ///
   /// Position the overlay based on the current [MediaQuery] to land above the keyboard.
   void _insertOverlay() {
-    OverlayState os = Overlay.of(context)!;
+    final OverlayState os = Overlay.of(context)!;
     _inserted = true;
     _overlayEntry = OverlayEntry(builder: (context) {
       // Update and build footer, if any
@@ -386,14 +387,14 @@ class KeyboardActionstate extends State<KeyboardActions>
   }
 
   /// Remove the overlay bar. Call when losing focus or being dismissed.
-  void _removeOverlay({bool fromDispose = false}) async {
+  Future<void> _removeOverlay({bool fromDispose = false}) async {
     _inserted = false;
     if (_currentFooter != null && _dismissAnimationNeeded) {
       if (mounted && !fromDispose) {
         _overlayEntry?.markNeedsBuild();
         // add a completer to indicate the completion of dismiss animation.
         _dismissAnimation = Completer<void>();
-        await Future.delayed(_timeToDismiss);
+        await Future<dynamic>.delayed(_timeToDismiss);
         _dismissAnimation?.complete();
         _dismissAnimation = null;
       }
@@ -529,7 +530,7 @@ class KeyboardActionstate extends State<KeyboardActions>
             children: [
               if (config!.nextFocus && displayArrows) ...[
                 IconButton(
-                  icon: Icon(Icons.keyboard_arrow_up),
+                  icon: const Icon(Icons.keyboard_arrow_up),
                   tooltip: 'Previous',
                   iconSize: IconTheme.of(context).size!,
                   color: IconTheme.of(context).color,
@@ -537,7 +538,7 @@ class KeyboardActionstate extends State<KeyboardActions>
                   onPressed: _previousIndex != null ? _onTapUp : null,
                 ),
                 IconButton(
-                  icon: Icon(Icons.keyboard_arrow_down),
+                  icon: const Icon(Icons.keyboard_arrow_down),
                   tooltip: 'Next',
                   iconSize: IconTheme.of(context).size!,
                   color: IconTheme.of(context).color,
@@ -561,10 +562,10 @@ class KeyboardActionstate extends State<KeyboardActions>
                     },
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                          const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                       child: config?.defaultDoneWidget ??
-                          Text(
-                            "Done",
+                          const Text(
+                            'Done',
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.w500,

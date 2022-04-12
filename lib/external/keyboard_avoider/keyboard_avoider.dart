@@ -9,6 +9,18 @@ import 'bottom_area_avoider.dart';
 ///
 /// Watches for media query changes via [didChangeMetrics], and adjusts a [BottomAreaAvoider] accordingly.
 class KeyboardAvoider extends StatefulWidget {
+  KeyboardAvoider({
+    Key? key,
+    required this.child,
+    this.physics,
+    this.duration = BottomAreaAvoider.defaultDuration,
+    this.curve = BottomAreaAvoider.defaultCurve,
+    this.autoScroll = BottomAreaAvoider.defaultAutoScroll,
+    this.overscroll = BottomAreaAvoider.defaultOverscroll,
+  // ignore: avoid_bool_literals_in_conditional_expressions
+  })  : assert(child is ScrollView ? child.controller != null : true),
+        super(key: key);
+  
   /// See [BottomAreaAvoider.child]
   final Widget child;
 
@@ -25,19 +37,9 @@ class KeyboardAvoider extends StatefulWidget {
   final double overscroll;
 
   /// See [BottomAreaAvoider.physics]
-  final ScrollPhysics? physics;
+  final ScrollPhysics? physics; 
 
-  KeyboardAvoider({
-    Key? key,
-    required this.child,
-    this.physics,
-    this.duration = BottomAreaAvoider.defaultDuration,
-    this.curve = BottomAreaAvoider.defaultCurve,
-    this.autoScroll = BottomAreaAvoider.defaultAutoScroll,
-    this.overscroll = BottomAreaAvoider.defaultOverscroll,
-  })  : assert(child is ScrollView ? child.controller != null : true),
-        super(key: key);
-
+  @override
   _KeyboardAvoiderState createState() => _KeyboardAvoiderState();
 }
 

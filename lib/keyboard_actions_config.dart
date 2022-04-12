@@ -3,6 +3,14 @@ import 'keyboard_actions.dart';
 
 /// Wrapper for a single configuration of the keyboard actions bar.
 class KeyboardActionsConfig {
+  const KeyboardActionsConfig({
+    this.keyboardActionsPlatform = KeyboardActionsPlatform.ALL,
+    this.nextFocus = true,
+    this.actions,
+    this.keyboardBarColor,
+    this.keyboardSeparatorColor = Colors.transparent,
+    this.defaultDoneWidget,
+  });
   /// Keyboard Action for specific platform
   /// KeyboardActionsPlatform : ANDROID , IOS , ALL
   final KeyboardActionsPlatform keyboardActionsPlatform;
@@ -22,13 +30,4 @@ class KeyboardActionsConfig {
   /// A [Widget] to be optionally used instead of the "Done" button
   /// which dismisses the keyboard.
   final Widget? defaultDoneWidget;
-
-  const KeyboardActionsConfig({
-    this.keyboardActionsPlatform = KeyboardActionsPlatform.ALL,
-    this.nextFocus = true,
-    this.actions,
-    this.keyboardBarColor,
-    this.keyboardSeparatorColor = Colors.transparent,
-    this.defaultDoneWidget,
-  });
 }

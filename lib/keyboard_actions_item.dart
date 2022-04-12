@@ -5,6 +5,18 @@ typedef ButtonBuilder = Widget Function(FocusNode focusNode);
 ///Class to define the `focusNode` that you pass to your `TextField` too and other params to customize
 ///the bar that will appear over your keyboard
 class KeyboardActionsItem {
+  const KeyboardActionsItem({
+    required this.focusNode,
+    this.onTapAction,
+    this.toolbarButtons,
+    this.enabled = true,
+    this.displayActionBar = true,
+    this.displayArrows = true,
+    this.displayDoneButton = true,
+    this.footerBuilder,
+    this.toolbarAlignment = MainAxisAlignment.end,
+  });
+
   /// The Focus object coupled to TextField, listening for got/lost focus events
   final FocusNode focusNode;
 
@@ -39,16 +51,4 @@ class KeyboardActionsItem {
   /// buttons from the left side of the toolbar, you can set [toolbarAlignment] and
   /// set the value of [displayArrows] to `false`
   final MainAxisAlignment toolbarAlignment;
-
-  const KeyboardActionsItem({
-    required this.focusNode,
-    this.onTapAction,
-    this.toolbarButtons,
-    this.enabled = true,
-    this.displayActionBar = true,
-    this.displayArrows = true,
-    this.displayDoneButton = true,
-    this.footerBuilder,
-    this.toolbarAlignment = MainAxisAlignment.end,
-  });
 }

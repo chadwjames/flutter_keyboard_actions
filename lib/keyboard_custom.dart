@@ -6,6 +6,14 @@ typedef WidgetKeyboardBuilder<T> = Widget Function(
 
 /// A widget that allow us to create a custom keyboard instead of the platform keyboard.
 class KeyboardCustomInput<T> extends StatefulWidget {
+  const KeyboardCustomInput({
+    Key? key,
+    required this.focusNode,
+    required this.builder,
+    required this.notifier,
+    this.height,
+  }) : super(key: key);
+  
   ///Create your own widget and receive the [T] value
   final WidgetKeyboardBuilder<T> builder;
 
@@ -17,14 +25,6 @@ class KeyboardCustomInput<T> extends StatefulWidget {
 
   ///Set the same `notifier` you add to the [KeyboardAction]
   final ValueNotifier<T> notifier;
-
-  const KeyboardCustomInput({
-    Key? key,
-    required this.focusNode,
-    required this.builder,
-    required this.notifier,
-    this.height,
-  }) : super(key: key);
 
   @override
   _KeyboardCustomInputState<T> createState() => _KeyboardCustomInputState<T>();
@@ -55,7 +55,7 @@ class _KeyboardCustomInputState<T> extends State<KeyboardCustomInput<T>>
           height: widget.height,
           width: double.maxFinite,
           child: InputDecorator(
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: InputBorder.none,
               filled: false,
               disabledBorder: InputBorder.none,

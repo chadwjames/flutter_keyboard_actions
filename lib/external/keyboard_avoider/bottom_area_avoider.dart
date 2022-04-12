@@ -9,6 +9,19 @@ import 'package:flutter/rendering.dart';
 /// If [autoScroll] is true and the [child] contains a focused widget such as a [TextField],
 /// automatically scrolls so that it is just visible above the keyboard, plus any additional [overscroll].
 class BottomAreaAvoider extends StatefulWidget {
+  const BottomAreaAvoider(
+      {Key? key,
+      required this.child,
+      required this.areaToAvoid,
+      this.autoScroll = false,
+      this.duration = defaultDuration,
+      this.curve = defaultCurve,
+      this.overscroll = defaultOverscroll,
+      this.physics})
+      : //assert(child is ScrollView ? child.controller != null : true),
+        assert(areaToAvoid >= 0, 'Cannot avoid a negative area'),
+        super(key: key);
+  
   static const Duration defaultDuration = Duration(milliseconds: 100);
   static const Curve defaultCurve = Curves.easeIn;
   static const double defaultOverscroll = 12.0;
@@ -41,24 +54,13 @@ class BottomAreaAvoider extends StatefulWidget {
   /// The [ScrollPhysics] of the [SingleChildScrollView] which contains child
   final ScrollPhysics? physics;
 
-  BottomAreaAvoider(
-      {Key? key,
-      required this.child,
-      required this.areaToAvoid,
-      this.autoScroll = false,
-      this.duration = defaultDuration,
-      this.curve = defaultCurve,
-      this.overscroll = defaultOverscroll,
-      this.physics})
-      : //assert(child is ScrollView ? child.controller != null : true),
-        assert(areaToAvoid >= 0, 'Cannot avoid a negative area'),
-        super(key: key);
-
+  
+  @override
   BottomAreaAvoiderState createState() => BottomAreaAvoiderState();
 }
 
 class BottomAreaAvoiderState extends State<BottomAreaAvoider> {
-  final _animationKey = new GlobalKey<ImplicitlyAnimatedWidgetState>();
+  final _animationKey = GlobalKey<ImplicitlyAnimatedWidgetState>();
   Function(AnimationStatus)? _animationListener;
   ScrollController? _scrollController;
   late double _previousAreaToAvoid;
@@ -91,7 +93,7 @@ class BottomAreaAvoiderState extends State<BottomAreaAvoider> {
     // If [child] is a [ScrollView], get its [ScrollController]
     // and embed the [child] directly in an [AnimatedContainer].
     if (widget.child is ScrollView) {
-      var scrollView = widget.child as ScrollView;
+      final scrollView = widget.child as ScrollView;
       _scrollController =
           scrollView.controller ?? PrimaryScrollController.of(context);
       return _buildAnimatedContainer(widget.child);
@@ -100,7 +102,7 @@ class BottomAreaAvoiderState extends State<BottomAreaAvoider> {
     // embed the [child] in a [SingleChildScrollView] to make
     // it possible to scroll to the focused widget.
     if (widget.autoScroll) {
-      _scrollController = new ScrollController();
+      _scrollController = ScrollController();
       return _buildAnimatedContainer(
         LayoutBuilder(
           builder: (context, constraints) {
@@ -185,7 +187,7 @@ RenderObject? findFocusedObject(RenderObject? root) {
 }
 
 /// Scroll to the given [object], which must be inside [scrollController]s viewport.
-scrollToObject(RenderObject object, ScrollController scrollController,
+void scrollToObject(RenderObject object, ScrollController scrollController,
     Duration duration, Curve curve, double overscroll) {
   // Calculate the offset needed to show the object in the [ScrollView]
   // so that its bottom touches the top of the keyboard.
